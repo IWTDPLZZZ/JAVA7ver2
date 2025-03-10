@@ -16,10 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class SpellCheckService {
@@ -43,7 +40,46 @@ public class SpellCheckService {
 
         return results;
     }
+    @Transactional
+    public List<SpellCheck> processAndSaveSpellChecks(String text) {
+        List<SpellCheck> errors = checkSentence(text);
 
+        List<Category> orthographyCategories = categoryRepository.findByName("Орфография");
+        Category orthographyCategory;
+
+        if (orthographyCategories.isEmpty()) {
+            orthographyCategory = new Category("Орфография");
+            categoryRepository.save(orthographyCategory);
+        } else {
+            orthographyCategory = orthographyCategories.get(0);
+        }
+
+        for (SpellCheck error : errors) {
+            List<SpellCheckCategory> existingEntities = spellCheckCategoryRepository.findByName(error.getWord());
+            SpellCheckCategory spellCheckEntity;
+
+            if (existingEntities.isEmpty()) {
+                spellCheckEntity = new SpellCheckCategory();
+                spellCheckEntity.setName(error.getWord());
+            } else {
+                spellCheckEntity = existingEntities.get(0);
+            }
+
+            spellCheckEntity.setStatus(error.getStatus());
+            spellCheckEntity.setError(error.getError());
+
+            Set<Category> categories = spellCheckEntity.getCategories();
+            if (categories == null) {
+                categories = new HashSet<>();
+            }
+            categories.add(orthographyCategory);
+            spellCheckEntity.setCategories(categories);
+
+            spellCheckCategoryRepository.save(spellCheckEntity);
+        }
+
+        return errors;
+    }
     private SpellCheck checkWord(String word) {
         String urlStr = "https://api.dictionaryapi.dev/api/v2/entries/en/" + word;
         try {
@@ -93,7 +129,6 @@ public class SpellCheckService {
         spellCheckCategoryRepository.save(spellCheck);
     }
 
-    // Методы для работы с категориями
     public List<Category> getAllCategories() {
         return categoryRepository.findAll();
     }

@@ -49,7 +49,6 @@ public class SpellCheckCategoryController {
         return ResponseEntity.ok().build();
     }
 
-    // Методы для управления связями
     @PostMapping("/{spellCheckId}/categories/{categoryId}")
     public ResponseEntity<?> addCategoryToSpellCheck(@PathVariable Long spellCheckId,
                                                      @PathVariable Long categoryId) {

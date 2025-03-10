@@ -37,7 +37,6 @@ public class SpellCheckCategory {
         this.error = error;
     }
 
-    // Метод для преобразования SpellCheck в SpellCheckCategory
     public static SpellCheckCategory fromSpellCheck(SpellCheck spellCheck) {
         return new SpellCheckCategory(
                 spellCheck.getWord(),
@@ -46,7 +45,6 @@ public class SpellCheckCategory {
         );
     }
 
-    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }
@@ -87,13 +85,11 @@ public class SpellCheckCategory {
         this.categories = categories;
     }
 
-    // Метод для добавления категории
     public void addCategory(Category category) {
         this.categories.add(category);
         category.getSpellChecks().add(this);
     }
 
-    // Метод для удаления категории
     public void removeCategory(Category category) {
         this.categories.remove(category);
         category.getSpellChecks().remove(this);

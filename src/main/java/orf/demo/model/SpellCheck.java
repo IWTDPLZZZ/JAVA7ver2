@@ -5,7 +5,6 @@ public class SpellCheck {
     private String status;
     private String error;
 
-    // Конструкторы
     public SpellCheck() {}
 
     public SpellCheck(String word, String status, String error) {
@@ -14,7 +13,6 @@ public class SpellCheck {
         this.error = error;
     }
 
-    // Геттеры и сеттеры
     public String getWord() {
         return word;
     }
