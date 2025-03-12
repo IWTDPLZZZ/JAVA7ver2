@@ -27,59 +27,70 @@ public class SpellCheckService {
     @Autowired
     private SpellCheckCategoryRepository spellCheckCategoryRepository;
 
-    public List<SpellCheck> checkSentence(String sentence) {
+    private List<SpellCheck> checkSentence(String sentence) {
         String[] words = sentence.split("\\s+");
         List<SpellCheck> results = new ArrayList<>();
 
         for (String word : words) {
             SpellCheck result = checkWord(word);
             results.add(result);
-
-            saveSpellCheckResult(word, result.getStatus());
         }
 
         return results;
     }
+
     @Transactional
     public List<SpellCheck> processAndSaveSpellChecks(String text) {
         List<SpellCheck> errors = checkSentence(text);
 
-        List<Category> orthographyCategories = categoryRepository.findByName("Орфография");
-        Category orthographyCategory;
-
-        if (orthographyCategories.isEmpty()) {
-            orthographyCategory = new Category("Орфография");
-            categoryRepository.save(orthographyCategory);
-        } else {
-            orthographyCategory = orthographyCategories.get(0);
-        }
+        Category orthographyCategory = getOrCreateOrthographyCategory();
 
         for (SpellCheck error : errors) {
-            List<SpellCheckCategory> existingEntities = spellCheckCategoryRepository.findByName(error.getWord());
-            SpellCheckCategory spellCheckEntity;
+            SpellCheckCategory detailedEntity = getOrCreateSpellCheckEntity(error);
 
-            if (existingEntities.isEmpty()) {
-                spellCheckEntity = new SpellCheckCategory();
-                spellCheckEntity.setName(error.getWord());
-            } else {
-                spellCheckEntity = existingEntities.get(0);
-            }
+            addCategoryToEntity(detailedEntity, orthographyCategory);
 
-            spellCheckEntity.setStatus(error.getStatus());
-            spellCheckEntity.setError(error.getError());
-
-            Set<Category> categories = spellCheckEntity.getCategories();
-            if (categories == null) {
-                categories = new HashSet<>();
-            }
-            categories.add(orthographyCategory);
-            spellCheckEntity.setCategories(categories);
-
-            spellCheckCategoryRepository.save(spellCheckEntity);
+            spellCheckCategoryRepository.save(detailedEntity);
         }
 
         return errors;
     }
+
+    private Category getOrCreateOrthographyCategory() {
+        List<Category> categories = categoryRepository.findByName("Орфография");
+        if (categories.isEmpty()) {
+            Category category = new Category("Орфография");
+            return categoryRepository.save(category);
+        }
+        return categories.get(0);
+    }
+
+    private SpellCheckCategory getOrCreateSpellCheckEntity(SpellCheck error) {
+        List<SpellCheckCategory> entities = spellCheckCategoryRepository.findByName(error.getWord());
+        SpellCheckCategory entity;
+
+        if (entities.isEmpty()) {
+            entity = new SpellCheckCategory();
+            entity.setName(error.getWord());
+        } else {
+            entity = entities.get(0);
+        }
+
+        entity.setStatus(error.getStatus());
+        entity.setError(error.getError());
+
+        return entity;
+    }
+
+    private void addCategoryToEntity(SpellCheckCategory entity, Category category) {
+        Set<Category> categories = entity.getCategories();
+        if (categories == null) {
+            categories = new HashSet<>();
+        }
+        categories.add(category);
+        entity.setCategories(categories);
+    }
+
     private SpellCheck checkWord(String word) {
         String urlStr = "https://api.dictionaryapi.dev/api/v2/entries/en/" + word;
         try {
@@ -119,14 +130,6 @@ public class SpellCheckService {
 
             return rootNode.toString();
         }
-    }
-
-
-    @Transactional
-    protected void saveSpellCheckResult(String word, String status) {
-        SpellCheckCategory spellCheck = new SpellCheckCategory();
-        spellCheck.setName(word);
-        spellCheckCategoryRepository.save(spellCheck);
     }
 
     public List<Category> getAllCategories() {
@@ -170,6 +173,9 @@ public class SpellCheckService {
                 .orElseThrow(() -> new RuntimeException("Категория не найдена"));
 
         Set<Category> categories = spellCheck.getCategories();
+        if (categories == null) {
+            categories = new HashSet<>();
+        }
         categories.add(category);
         spellCheck.setCategories(categories);
 

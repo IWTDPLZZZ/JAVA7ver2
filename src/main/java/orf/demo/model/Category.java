@@ -17,14 +17,12 @@ public class Category {
     @ManyToMany(mappedBy = "categories")
     private Set<SpellCheckCategory> spellChecks = new HashSet<>();
 
-    // Конструкторы
     public Category() {}
 
     public Category(String name) {
         this.name = name;
     }
 
-    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }

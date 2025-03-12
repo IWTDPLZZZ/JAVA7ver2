@@ -28,7 +28,6 @@ public class SpellCheckCategory {
     )
     private Set<Category> categories = new HashSet<>();
 
-    // Конструкторы
     public SpellCheckCategory() {}
 
     public SpellCheckCategory(String name, String status, String error) {
