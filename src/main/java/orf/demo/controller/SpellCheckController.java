@@ -1,6 +1,7 @@
 package orf.demo.controller;
 
 import orf.demo.model.SpellCheck;
+import orf.demo.repository.QueryRepositoryOfStatus;
 import orf.demo.service.SpellCheckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,8 @@ public class SpellCheckController {
 
     @Autowired
     private SpellCheckService spellCheckService;
-
+    
+    
     @GetMapping("/check")
     public Map<String, Object> checkText(@RequestParam String text) {
         Map<String, Object> response = new HashMap<>();
@@ -23,4 +25,5 @@ public class SpellCheckController {
         response.put("errors", errors);
         return response;
     }
+
 }

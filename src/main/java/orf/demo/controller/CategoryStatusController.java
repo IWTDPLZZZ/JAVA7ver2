@@ -29,7 +29,6 @@ public class CategoryStatusController {
         return ResponseEntity.ok(spellCheckCategories);
     }
 
-    // Метод createCategory удален для устранения конфликта с CategoryController
 
     @PutMapping("/{id}/status")
     public ResponseEntity<Map<String, Object>> updateCategoryStatus(@PathVariable Long id, @RequestBody Category updatedCategory) {

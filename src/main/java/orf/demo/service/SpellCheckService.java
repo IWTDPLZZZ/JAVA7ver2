@@ -1,31 +1,42 @@
 package orf.demo.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import orf.demo.model.Category;
 import orf.demo.model.SpellCheck;
 import orf.demo.model.SpellCheckCategory;
 import orf.demo.repository.CategoryRepository;
 import orf.demo.repository.SpellCheckCategoryRepository;
+import orf.demo.service.CacheService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.springframework.transaction.annotation.Transactional;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class SpellCheckService {
-
     @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
     private SpellCheckCategoryRepository spellCheckCategoryRepository;
+
+    @Autowired
+    private CacheService cacheService;
+
+    private final Map<String, List<SpellCheck>> spellCheckCache = new HashMap<>();
 
     private List<SpellCheck> checkSentence(String sentence) {
         String[] words = sentence.split("\\s+");
@@ -41,6 +52,10 @@ public class SpellCheckService {
 
     @Transactional
     public List<SpellCheck> processAndSaveSpellChecks(String text) {
+        if (spellCheckCache.containsKey(text)) {
+            return spellCheckCache.get(text);
+        }
+
         List<SpellCheck> errors = checkSentence(text);
 
         Category orthographyCategory = getOrCreateOrthographyCategory();
@@ -53,32 +68,41 @@ public class SpellCheckService {
             spellCheckCategoryRepository.save(detailedEntity);
         }
 
+        spellCheckCache.put(text, errors);
         return errors;
     }
 
     private Category getOrCreateOrthographyCategory() {
-        List<Category> categories = categoryRepository.findByName("Орфография");
-        if (categories.isEmpty()) {
-            Category category = new Category("Орфография");
-            return categoryRepository.save(category);
+        String cacheKey = "orthographyCategory";
+        Category category = (Category) cacheService.get(cacheKey);
+        if (category == null) {
+            List<Category> categories = categoryRepository.findByName("Орфография");
+            if (categories.isEmpty()) {
+                category = new Category("Орфография");
+                category = categoryRepository.save(category);
+            } else {
+                category = categories.get(0);
+            }
+            cacheService.put(cacheKey, category);
         }
-        return categories.get(0);
+        return category;
     }
 
     private SpellCheckCategory getOrCreateSpellCheckEntity(SpellCheck error) {
-        List<SpellCheckCategory> entities = spellCheckCategoryRepository.findByName(error.getWord());
-        SpellCheckCategory entity;
-
-        if (entities.isEmpty()) {
-            entity = new SpellCheckCategory();
-            entity.setName(error.getWord());
-        } else {
-            entity = entities.get(0);
+        String cacheKey = "spellCheckCategory_" + error.getWord();
+        SpellCheckCategory entity = (SpellCheckCategory) cacheService.get(cacheKey);
+        if (entity == null) {
+            List<SpellCheckCategory> entities = spellCheckCategoryRepository.findByName(error.getWord());
+            if (entities.isEmpty()) {
+                entity = new SpellCheckCategory();
+                entity.setName(error.getWord());
+            } else {
+                entity = entities.get(0);
+            }
+            entity.setStatus(error.getStatus());
+            entity.setError(error.getError());
+            cacheService.put(cacheKey, entity);
         }
-
-        entity.setStatus(error.getStatus());
-        entity.setError(error.getError());
-
         return entity;
     }
 
@@ -133,44 +157,77 @@ public class SpellCheckService {
     }
 
     public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+        return cacheService.get("allCategories") != null
+                ? (List<Category>) cacheService.get("allCategories")
+                : categoryRepository.findAll();
     }
 
     public Category saveCategory(Category category) {
-        return categoryRepository.save(category);
+        Category savedCategory = categoryRepository.save(category);
+        cacheService.evictAll();
+        return savedCategory;
     }
 
     public Optional<Category> getCategoryById(Long id) {
-        return categoryRepository.findById(id);
+        String cacheKey = "category_" + id;
+        Category category = (Category) cacheService.get(cacheKey);
+        if (category == null) {
+            return categoryRepository.findById(id);
+        }
+        return Optional.of(category);
     }
 
     public void deleteCategory(Long id) {
         categoryRepository.deleteById(id);
+        cacheService.evict("category_" + id);
+        cacheService.evict("allCategories");
     }
 
     public List<SpellCheckCategory> getAllSpellChecks() {
-        return spellCheckCategoryRepository.findAll();
+        return cacheService.get("allSpellChecks") != null
+                ? (List<SpellCheckCategory>) cacheService.get("allSpellChecks")
+                : spellCheckCategoryRepository.findAll();
     }
 
     public SpellCheckCategory saveSpellCheck(SpellCheckCategory spellCheckCategory) {
-        return spellCheckCategoryRepository.save(spellCheckCategory);
+        SpellCheckCategory savedEntity = spellCheckCategoryRepository.save(spellCheckCategory);
+        cacheService.evict("allSpellChecks");
+        return savedEntity;
     }
 
     public Optional<SpellCheckCategory> getSpellCheckById(Long id) {
-        return spellCheckCategoryRepository.findById(id);
+        String cacheKey = "spellCheckCategory_" + id;
+        SpellCheckCategory spellCheckCategory = (SpellCheckCategory) cacheService.get(cacheKey);
+        if (spellCheckCategory == null) {
+            return spellCheckCategoryRepository.findById(id);
+        }
+        return Optional.of(spellCheckCategory);
     }
 
     public void deleteSpellCheck(Long id) {
         spellCheckCategoryRepository.deleteById(id);
+        cacheService.evict("spellCheckCategory_" + id);
+        cacheService.evict("allSpellChecks");
     }
 
     @Transactional
     public void addCategoryToSpellCheck(Long spellCheckId, Long categoryId) {
-        SpellCheckCategory spellCheck = spellCheckCategoryRepository.findById(spellCheckId)
-                .orElseThrow(() -> new RuntimeException("SpellCheck не найден"));
+        String spellCheckCacheKey = "spellCheckCategory_" + spellCheckId;
+        String categoryCacheKey = "category_" + categoryId;
 
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+        SpellCheckCategory spellCheck = (SpellCheckCategory) cacheService.get(spellCheckCacheKey);
+        if (spellCheck == null) {
+            spellCheck = spellCheckCategoryRepository.findById(spellCheckId)
+                    .orElseThrow(() -> new RuntimeException("SpellCheck не найден"));
+            cacheService.put(spellCheckCacheKey, spellCheck);
+        }
+
+        Category category = (Category) cacheService.get(categoryCacheKey);
+        if (category == null) {
+            category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+            cacheService.put(categoryCacheKey, category);
+        }
 
         Set<Category> categories = spellCheck.getCategories();
         if (categories == null) {
@@ -180,20 +237,33 @@ public class SpellCheckService {
         spellCheck.setCategories(categories);
 
         spellCheckCategoryRepository.save(spellCheck);
+        cacheService.evict(spellCheckCacheKey);
     }
 
     @Transactional
     public void removeCategoryFromSpellCheck(Long spellCheckId, Long categoryId) {
-        SpellCheckCategory spellCheck = spellCheckCategoryRepository.findById(spellCheckId)
-                .orElseThrow(() -> new RuntimeException("SpellCheck не найден"));
+        String spellCheckCacheKey = "spellCheckCategory_" + spellCheckId;
+        String categoryCacheKey = "category_" + categoryId;
 
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+        SpellCheckCategory spellCheck = (SpellCheckCategory) cacheService.get(spellCheckCacheKey);
+        if (spellCheck == null) {
+            spellCheck = spellCheckCategoryRepository.findById(spellCheckId)
+                    .orElseThrow(() -> new RuntimeException("SpellCheck не найден"));
+            cacheService.put(spellCheckCacheKey, spellCheck);
+        }
+
+        Category category = (Category) cacheService.get(categoryCacheKey);
+        if (category == null) {
+            category = categoryRepository.findById(categoryId)
+                    .orElseThrow(() -> new RuntimeException("Категория не найдена"));
+            cacheService.put(categoryCacheKey, category);
+        }
 
         Set<Category> categories = spellCheck.getCategories();
         categories.remove(category);
         spellCheck.setCategories(categories);
 
         spellCheckCategoryRepository.save(spellCheck);
+        cacheService.evict(spellCheckCacheKey);
     }
 }

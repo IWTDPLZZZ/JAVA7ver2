@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface CategoryRepository extends JpaRepository<Category, Long> {
+public interface QueryRepositoryOfStatus extends JpaRepository<Category, Long> {
     @Query("SELECT scc FROM SpellCheckCategory scc " +
             "JOIN scc.categories c " +
             "WHERE c.id = :categoryId")
