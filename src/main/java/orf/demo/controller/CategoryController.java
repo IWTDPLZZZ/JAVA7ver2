@@ -1,8 +1,7 @@
 package orf.demo.controller;
 
 import orf.demo.model.Category;
-import orf.demo.service.CacheService;
-import orf.demo.service.SpellCheckService;
+import orf.demo.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,64 +13,32 @@ import java.util.List;
 public class CategoryController {
 
     @Autowired
-    private SpellCheckService spellCheckService;
-
-    @Autowired
-    private CacheService cacheService;
+    private CategoryService categoryService;
 
     @GetMapping
-    public List<Category> getAllCategories() {
-        List<Category> categories = (List<Category>) cacheService.get("allCategories");
-        if (categories == null) {
-            categories = spellCheckService.getAllCategories();
-            cacheService.put("allCategories", categories);
-        }
-        return categories;
+    public ResponseEntity<List<Category>> getAllCategories() {
+        return ResponseEntity.ok(categoryService.getAllCategories());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getCategoryById(@PathVariable Long id) {
-        String cacheKey = "category_" + id;
-        Category category = (Category) cacheService.get(cacheKey);
-        if (category == null) {
-            category = spellCheckService.getCategoryById(id)
-                    .orElse(null);
-            if (category != null) {
-                cacheService.put(cacheKey, category);
-            }
-        }
-        return category != null
-                ? ResponseEntity.ok(category)
-                : ResponseEntity.notFound().build();
+    public ResponseEntity<Category> getCategoryById(@PathVariable Long id) {
+        return ResponseEntity.ok(categoryService.getCategoryById(id)
+                .orElseThrow(() -> new RuntimeException("Category not found with ID: " + id)));
     }
 
     @PostMapping
-    public Category createCategory(@RequestBody Category category) {
-        Category savedCategory = spellCheckService.saveCategory(category);
-        cacheService.evictAll();
-        return savedCategory;
+    public ResponseEntity<Category> createCategory(@RequestBody Category category) {
+        return ResponseEntity.ok(categoryService.saveCategory(category));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateCategory(@PathVariable Long id, @RequestBody Category category) {
-        if (spellCheckService.getCategoryById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        category.setId(id);
-        Category updatedCategory = spellCheckService.saveCategory(category);
-        String cacheKey = "category_" + id;
-        cacheService.put(cacheKey, updatedCategory);
-        return ResponseEntity.ok(updatedCategory);
+    public ResponseEntity<Category> updateCategory(@PathVariable Long id, @RequestBody Category category) {
+        return ResponseEntity.ok(categoryService.updateCategory(id, category));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable Long id) {
-        if (spellCheckService.getCategoryById(id).isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-        spellCheckService.deleteCategory(id);
-        cacheService.evict("category_" + id);
-        cacheService.evict("allCategories");
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+        categoryService.deleteCategory(id);
         return ResponseEntity.ok().build();
     }
 }

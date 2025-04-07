@@ -5,7 +5,8 @@ public class SpellCheck {
     private String status;
     private String error;
 
-    public SpellCheck() {}
+    public SpellCheck() {
+    }
 
     public SpellCheck(String word, String status, String error) {
         this.word = word;
@@ -35,5 +36,14 @@ public class SpellCheck {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    @Override
+    public String toString() {
+        return "SpellCheck{" +
+                "word='" + word + '\'' +
+                ", status='" + status + '\'' +
+                ", error='" + error + '\'' +
+                '}';
     }
 }
