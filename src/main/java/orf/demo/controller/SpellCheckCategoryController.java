@@ -1,5 +1,6 @@
 package orf.demo.controller;
 
+import orf.demo.model.Category;
 import orf.demo.model.SpellCheckCategory;
 import orf.demo.service.SpellCheckCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,8 +13,12 @@ import java.util.List;
 @RequestMapping("/spell-checks")
 public class SpellCheckCategoryController {
 
+    private final SpellCheckCategoryService spellCheckCategoryService;
+
     @Autowired
-    private SpellCheckCategoryService spellCheckCategoryService;
+    public SpellCheckCategoryController(SpellCheckCategoryService spellCheckCategoryService) {
+        this.spellCheckCategoryService = spellCheckCategoryService;
+    }
 
     @GetMapping
     public ResponseEntity<List<SpellCheckCategory>> getAllSpellChecks() {
@@ -22,8 +27,7 @@ public class SpellCheckCategoryController {
 
     @GetMapping("/{id}")
     public ResponseEntity<SpellCheckCategory> getSpellCheckById(@PathVariable Long id) {
-        return ResponseEntity.ok(spellCheckCategoryService.getSpellCheckById(id)
-                .orElseThrow(() -> new RuntimeException("Spell check not found with ID: " + id)));
+        return ResponseEntity.ok(spellCheckCategoryService.getSpellCheckById(id));
     }
 
     @PostMapping
@@ -32,7 +36,9 @@ public class SpellCheckCategoryController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<SpellCheckCategory> updateSpellCheck(@PathVariable Long id, @RequestBody SpellCheckCategory spellCheck) {
+    public ResponseEntity<SpellCheckCategory> updateSpellCheck(
+            @PathVariable Long id,
+            @RequestBody SpellCheckCategory spellCheck) {
         return ResponseEntity.ok(spellCheckCategoryService.updateSpellCheck(id, spellCheck));
     }
 
@@ -54,5 +60,20 @@ public class SpellCheckCategoryController {
                                                              @PathVariable Long categoryId) {
         spellCheckCategoryService.removeCategoryFromSpellCheck(spellCheckId, categoryId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/by-category")
+    public ResponseEntity<List<SpellCheckCategory>> getSpellChecksByCategory(
+            @RequestParam("categoryName") String categoryName) {
+        List<SpellCheckCategory> spellChecks = spellCheckCategoryService.getSpellChecksByCategory(categoryName);
+        return ResponseEntity.ok(spellChecks);
+    }
+
+    @GetMapping("/by-error-and-category")
+    public ResponseEntity<List<SpellCheckCategory>> getSpellChecksByErrorAndCategory(
+            @RequestParam("error") String error,
+            @RequestParam("categoryName") String categoryName) {
+        List<SpellCheckCategory> spellChecks = spellCheckCategoryService.findByErrorAndCategoryName(error, categoryName);
+        return ResponseEntity.ok(spellChecks);
     }
 }

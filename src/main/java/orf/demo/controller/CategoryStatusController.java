@@ -2,6 +2,7 @@ package orf.demo.controller;
 
 import orf.demo.model.SpellCheckCategory;
 import orf.demo.service.CategoryStatusService;
+import orf.demo.service.SpellCheckCategoryService;
 import orf.demo.model.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,19 @@ import java.util.Map;
 @RequestMapping("/categories")
 public class CategoryStatusController {
 
+    private final CategoryStatusService categoryStatusService;
+    private final SpellCheckCategoryService spellCheckCategoryService;
+
     @Autowired
-    private CategoryStatusService categoryStatusService;
+    public CategoryStatusController(CategoryStatusService categoryStatusService,
+                                    SpellCheckCategoryService spellCheckCategoryService) {
+        this.categoryStatusService = categoryStatusService;
+        this.spellCheckCategoryService = spellCheckCategoryService;
+    }
 
     @GetMapping("/{categoryId}/spell-checks")
     public ResponseEntity<List<SpellCheckCategory>> getSpellChecksByCategoryId(@PathVariable Long categoryId) {
-        return ResponseEntity.ok(categoryStatusService.getSpellChecksByCategoryId(categoryId));
+        return ResponseEntity.ok(spellCheckCategoryService.getSpellChecksByCategory(String.valueOf(categoryId)));
     }
 
     @PutMapping("/{id}/status")

@@ -1,28 +1,25 @@
 package orf.demo.model;
 
 import jakarta.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-@Table(name = "categories")
+@Table(name = "category")
 public class Category {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
     private String name;
 
+    private String status;
+
     @ManyToMany(mappedBy = "categories")
-    private Set<SpellCheckCategory> spellChecks = new HashSet<>();
+    private List<SpellCheckCategory> spellChecks = new ArrayList<>();
 
-    public Category() {}
-
-    public Category(String name) {
-        this.name = name;
-    }
-
+    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }
@@ -39,11 +36,19 @@ public class Category {
         this.name = name;
     }
 
-    public Set<SpellCheckCategory> getSpellChecks() {
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public List<SpellCheckCategory> getSpellChecks() {
         return spellChecks;
     }
 
-    public void setSpellChecks(Set<SpellCheckCategory> spellChecks) {
+    public void setSpellChecks(List<SpellCheckCategory> spellChecks) {
         this.spellChecks = spellChecks;
     }
 }

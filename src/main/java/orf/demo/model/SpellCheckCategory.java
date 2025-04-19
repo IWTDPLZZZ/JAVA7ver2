@@ -1,23 +1,21 @@
 package orf.demo.model;
 
 import jakarta.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "spell_checks")
 public class SpellCheckCategory {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "status")
     private String status;
 
-    @Column(name = "error")
     private String error;
 
     @ManyToMany
@@ -26,24 +24,9 @@ public class SpellCheckCategory {
             joinColumns = @JoinColumn(name = "spell_check_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
-    private Set<Category> categories = new HashSet<>();
+    private List<Category> categories = new ArrayList<>();
 
-    public SpellCheckCategory() {}
-
-    public SpellCheckCategory(String name, String status, String error) {
-        this.name = name;
-        this.status = status;
-        this.error = error;
-    }
-
-    public static SpellCheckCategory fromSpellCheck(SpellCheck spellCheck) {
-        return new SpellCheckCategory(
-                spellCheck.getWord(),
-                spellCheck.getStatus(),
-                spellCheck.getError()
-        );
-    }
-
+    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }
@@ -76,21 +59,22 @@ public class SpellCheckCategory {
         this.error = error;
     }
 
-    public Set<Category> getCategories() {
+    public List<Category> getCategories() {
         return categories;
     }
 
-    public void setCategories(Set<Category> categories) {
+    public void setCategories(List<Category> categories) {
         this.categories = categories;
     }
 
+    // Добавляем методы для управления списком categories
     public void addCategory(Category category) {
-        this.categories.add(category);
-        category.getSpellChecks().add(this);
+        categories.add(category);
+        category.getSpellChecks().add(this); // Поддерживаем обратную связь
     }
 
     public void removeCategory(Category category) {
-        this.categories.remove(category);
-        category.getSpellChecks().remove(this);
+        categories.remove(category);
+        category.getSpellChecks().remove(this); // Поддерживаем обратную связь
     }
 }

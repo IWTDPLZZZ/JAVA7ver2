@@ -28,7 +28,7 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<Category> createCategory(@RequestBody Category category) {
-        return ResponseEntity.ok(categoryService.saveCategory(category));
+        return ResponseEntity.ok(categoryService.createCategory(category.getName()));
     }
 
     @PutMapping("/{id}")
