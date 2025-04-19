@@ -14,19 +14,24 @@ import java.util.stream.Collectors;
 public class SpellCheckServiceImpl implements SpellCheckService {
 
     private final SpellChecker spellChecker;
+    private final RequestCounter requestCounter;
 
     @Autowired
-    public SpellCheckServiceImpl(@Qualifier("simpleSpellChecker") SpellChecker spellChecker) {
+    public SpellCheckServiceImpl(@Qualifier("simpleSpellChecker") SpellChecker spellChecker,
+                                 RequestCounter requestCounter) {
         this.spellChecker = spellChecker;
+        this.requestCounter = requestCounter;
     }
 
     @Override
     public String checkSpelling(String word) {
+        requestCounter.incrementAndGet();
         return spellChecker.checkSpelling(word);
     }
 
     @Override
     public List<SpellCheckResponse> checkSpellingBulk(List<String> texts) {
+        requestCounter.incrementAndGet();
         if (texts == null) {
             throw new IllegalArgumentException("Список текстов не может быть null");
         }
@@ -40,12 +45,24 @@ public class SpellCheckServiceImpl implements SpellCheckService {
 
     @Override
     public List<SpellCheckResponse> checkSpellingBulkWithParams(List<String> texts) {
+        requestCounter.incrementAndGet();
+        if (texts == null) {
+            throw new IllegalArgumentException("Список текстов не может быть null");
+        }
         return texts.stream()
-                .filter(Objects::nonNull) // Фильтруем null элементы
+                .filter(Objects::nonNull)
                 .map(text -> {
                     String result = spellChecker.checkSpelling(text);
                     return new SpellCheckResponse(text, "Correct".equals(result));
                 })
                 .collect(Collectors.toList());
+    }
+
+    public long getRequestCount() {
+        return requestCounter.getCount();
+    }
+
+    public void resetRequestCount() {
+        requestCounter.reset();
     }
 }

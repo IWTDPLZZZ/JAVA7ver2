@@ -67,14 +67,13 @@ public class SpellCheckCategory {
         this.categories = categories;
     }
 
-    // Добавляем методы для управления списком categories
     public void addCategory(Category category) {
         categories.add(category);
-        category.getSpellChecks().add(this); // Поддерживаем обратную связь
+        category.getSpellChecks().add(this);
     }
 
     public void removeCategory(Category category) {
         categories.remove(category);
-        category.getSpellChecks().remove(this); // Поддерживаем обратную связь
+        category.getSpellChecks().remove(this);
     }
 }
