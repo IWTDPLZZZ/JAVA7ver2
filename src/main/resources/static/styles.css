@@ -1,0 +1,284 @@
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 50px 20px;
+    transition: background 0.3s, color 0.3s;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+}
+
+.light-theme {
+    background: linear-gradient(135deg, #ff00ff 0%, #ff99ff 100%); /* Ярко-розовый градиент */
+    color: #000000;
+}
+
+.dark-theme {
+    background: linear-gradient(135deg, #000099 0%, #3333ff 100%); /* Ярко-синий градиент */
+    color: #ffffff;
+}
+
+.container {
+    max-width: 1200px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 50px;
+    border-radius: 25px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    transition: background 0.3s;
+    border: 5px solid #ff00ff; /* Яркая розовая граница */
+}
+
+.dark-theme .container {
+    background: rgba(0, 0, 51, 0.9);
+    border-color: #00ffff; /* Яркая голубая граница */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 60px;
+    border-bottom: 5px solid #ff00ff;
+    padding-bottom: 25px;
+}
+
+.dark-theme header {
+    border-bottom-color: #00ffff;
+}
+
+h1 {
+    font-size: 4rem; /* Ещё крупнее */
+    font-weight: 800;
+    text-align: center;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
+    margin: 0;
+    letter-spacing: 3px;
+}
+
+.light-theme h1 {
+    color: #ff0000; /* Ярко-красный */
+}
+
+.dark-theme h1 {
+    color: #00ff00; /* Ярко-зелёный */
+}
+
+h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 40px;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+.light-theme h2 {
+    color: #ff0000;
+}
+
+.dark-theme h2 {
+    color: #00ff00;
+}
+
+form {
+    background-color: #fff0f5;
+    padding: 40px;
+    border-radius: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    margin-bottom: 60px;
+    border: 3px solid #ff00ff;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.dark-theme form {
+    background-color: #003366;
+    border-color: #00ffff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+.light-theme label {
+    color: #333333;
+}
+
+.dark-theme label {
+    color: #cccccc;
+}
+
+input[type="text"] {
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border: 3px solid #ff00ff;
+    border-radius: 12px;
+    font-size: 1.4rem;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: #ff0000;
+    box-shadow: 0 0 12px rgba(255, 0, 0, 0.5);
+}
+
+.dark-theme input[type="text"] {
+    background-color: #334466;
+    border-color: #00ffff;
+    color: #ffffff;
+}
+
+.dark-theme input[type="text"]:focus {
+    border-color: #00ff00;
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.5);
+}
+
+button {
+    padding: 20px 40px;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.4rem;
+    font-weight: 700;
+    transition: background-color 0.3s, transform 0.1s, box-shadow 0.3s;
+}
+
+button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+button[type="submit"] {
+    background-color: #ff0000; /* Ярко-красный */
+    color: white;
+}
+
+button[type="submit"]:hover {
+    background-color: #cc0000;
+}
+
+button.theme-toggle {
+    background-color: #ff99ff;
+    color: #ff0000;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 30px;
+    border: 4px solid #ff0000;
+    border-radius: 12px;
+}
+
+.dark-theme button.theme-toggle {
+    background-color: #003366;
+    color: #00ff00;
+    border-color: #00ff00;
+}
+
+button.theme-toggle:hover {
+    background-color: #ffccff;
+}
+
+.dark-theme button.theme-toggle:hover {
+    background-color: #006699;
+}
+
+button.edit {
+    background-color: #ffff00; /* Ярко-жёлтый */
+    color: #000000;
+    padding: 12px 18px;
+    margin-right: 12px;
+}
+
+button.edit:hover {
+    background-color: #cccc00;
+}
+
+button.delete {
+    background-color: #ff3333;
+    color: white;
+    padding: 12px 18px;
+}
+
+button.delete:hover {
+    background-color: #cc0000;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff0f5;
+    border-radius: 25px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    transition: background-color 0.3s;
+    border: 3px solid #ff00ff;
+}
+
+.dark-theme table {
+    background-color: #003366;
+    border-color: #00ffff;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6);
+}
+
+th, td {
+    border: 1px solid #ff99ff;
+    padding: 25px;
+    text-align: left;
+}
+
+.dark-theme th, .dark-theme td {
+    border-color: #006699;
+}
+
+th {
+    background-color: #ff99ff;
+    font-weight: 800;
+    font-size: 1.5rem;
+}
+
+.dark-theme th {
+    background-color: #006699;
+}
+
+tr {
+    transition: background-color 0.3s;
+}
+
+.light-theme tr:hover {
+    background-color: #ffccff;
+}
+
+.dark-theme tr:hover {
+    background-color: #004080;
+}
+
+@media (max-width: 640px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    input[type="text"] {
+        max-width: 100%;
+    }
+}
+
+.Toastify__toast {
+    border-radius: 15px;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    background: #ff0000;
+    color: white;
+}
+
+.dark-theme .Toastify__toast {
+    background: #00ff00;
+}
