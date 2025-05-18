@@ -25,13 +25,11 @@ public class SpellCheckServiceImpl implements SpellCheckService {
 
     @Override
     public String checkSpelling(String word) {
-        requestCounter.incrementAndGet();
         return spellChecker.checkSpelling(word);
     }
 
     @Override
     public List<SpellCheckResponse> checkSpellingBulk(List<String> texts) {
-        requestCounter.incrementAndGet();
         if (texts == null) {
             throw new IllegalArgumentException("Список текстов не может быть null");
         }
@@ -45,7 +43,6 @@ public class SpellCheckServiceImpl implements SpellCheckService {
 
     @Override
     public List<SpellCheckResponse> checkSpellingBulkWithParams(List<String> texts) {
-        requestCounter.incrementAndGet();
         if (texts == null) {
             throw new IllegalArgumentException("Список текстов не может быть null");
         }
@@ -58,10 +55,13 @@ public class SpellCheckServiceImpl implements SpellCheckService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+
     public long getRequestCount() {
         return requestCounter.getCount();
     }
 
+    @Override
     public void resetRequestCount() {
         requestCounter.reset();
     }

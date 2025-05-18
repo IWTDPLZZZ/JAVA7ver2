@@ -5,17 +5,41 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RequestCounter {
-    private final AtomicLong counter = new AtomicLong(0);
+    private final AtomicLong totalRequests = new AtomicLong(0);
+    private final AtomicLong successfulRequests = new AtomicLong(0);
+    private final AtomicLong failedRequests = new AtomicLong(0);
 
-    public long incrementAndGet() {
-        return counter.incrementAndGet();
+    public void incrementTotal() {
+        totalRequests.incrementAndGet();
+    }
+
+    public void incrementSuccessful() {
+        successfulRequests.incrementAndGet();
+    }
+
+    public void incrementFailed() {
+        failedRequests.incrementAndGet();
+    }
+
+    public long getTotalRequests() {
+        return totalRequests.get();
+    }
+
+    public long getSuccessfulRequests() {
+        return successfulRequests.get();
+    }
+
+    public long getFailedRequests() {
+        return failedRequests.get();
     }
 
     public long getCount() {
-        return counter.get();
+        return totalRequests.get() + successfulRequests.get() + failedRequests.get();
     }
 
     public void reset() {
-        counter.set(0);
+        totalRequests.set(0);
+        successfulRequests.set(0);
+        failedRequests.set(0);
     }
 }

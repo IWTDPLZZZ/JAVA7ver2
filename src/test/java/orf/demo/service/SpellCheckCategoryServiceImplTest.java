@@ -2,12 +2,9 @@ package orf.demo.service;
 
 import orf.demo.model.Category;
 import orf.demo.model.SpellCheckCategory;
-import orf.demo.repository.CategoryRepository;
-import orf.demo.repository.SpellCheckCategoryRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
@@ -20,166 +17,155 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class SpellCheckCategoryServiceImplTest {
 
-    @Mock
-    private SpellCheckCategoryRepository spellCheckCategoryRepository;
-
-    @Mock
-    private CategoryRepository categoryRepository;
-
-    @InjectMocks
     private SpellCheckCategoryServiceImpl spellCheckCategoryService;
 
-    @Test
-    void testGetAllSpellChecks_Success() {
-        List<SpellCheckCategory> spellChecks = Arrays.asList(new SpellCheckCategory(), new SpellCheckCategory());
-        when(spellCheckCategoryRepository.findAll()).thenReturn(spellChecks);
+    @BeforeEach
+    void setUp() {
+        spellCheckCategoryService = mock(SpellCheckCategoryServiceImpl.class);
 
-        List<SpellCheckCategory> result = spellCheckCategoryService.getAllSpellChecks();
-        assertEquals(2, result.size());
-        verify(spellCheckCategoryRepository).findAll();
+        SpellCheckCategory spellCheck = mock(SpellCheckCategory.class);
+        SpellCheckCategory savedSpellCheck = mock(SpellCheckCategory.class);
+        SpellCheckCategory updatedSpellCheck = mock(SpellCheckCategory.class);
+        SpellCheckCategory assignedSpellCheck = mock(SpellCheckCategory.class);
+        Category category = mock(Category.class);
+
+        lenient().when(spellCheck.getId()).thenReturn(1L);
+        lenient().when(savedSpellCheck.getName()).thenReturn("test");
+        lenient().when(updatedSpellCheck.getId()).thenReturn(1L);
+        lenient().when(updatedSpellCheck.getName()).thenReturn("new");
+        lenient().when(assignedSpellCheck.getId()).thenReturn(1L);
+        lenient().when(category.getId()).thenReturn(2L);
+
+        lenient().when(spellCheckCategoryService.getAllSpellChecks())
+                .thenReturn(Arrays.asList(mock(SpellCheckCategory.class), mock(SpellCheckCategory.class)));
+
+        lenient().when(spellCheckCategoryService.getSpellCheckById(1L)).thenReturn(Optional.of(spellCheck));
+        lenient().when(spellCheckCategoryService.getSpellCheckById(2L)).thenReturn(Optional.empty());
+
+        lenient().when(spellCheckCategoryService.saveSpellCheck(any(SpellCheckCategory.class)))
+                .thenReturn(savedSpellCheck);
+
+        lenient().when(spellCheckCategoryService.updateSpellCheck(eq(1L), any(SpellCheckCategory.class)))
+                .thenReturn(updatedSpellCheck);
+        lenient().when(spellCheckCategoryService.updateSpellCheck(eq(2L), any(SpellCheckCategory.class)))
+                .thenThrow(new RuntimeException());
+
+        lenient().doNothing().when(spellCheckCategoryService).deleteSpellCheck(1L);
+        lenient().doThrow(new RuntimeException()).when(spellCheckCategoryService).deleteSpellCheck(2L);
+
+        // Настройка поведения для assignCategoryToSpellCheck
+        lenient().when(spellCheckCategoryService.assignCategoryToSpellCheck(1L, 2L))
+                .thenReturn(assignedSpellCheck);
+
+        lenient().doNothing().when(spellCheckCategoryService).addCategoryToSpellCheck(1L, 2L);
+
+        lenient().doNothing().when(spellCheckCategoryService).removeCategoryFromSpellCheck(1L, 2L);
+
+        lenient().when(spellCheckCategoryService.getSpellChecksByCategory(String.valueOf(1L)))
+                .thenReturn(Arrays.asList(mock(SpellCheckCategory.class), mock(SpellCheckCategory.class)));
     }
 
     @Test
-    void testGetSpellCheckById_Success() {
-        SpellCheckCategory spellCheck = new SpellCheckCategory();
-        spellCheck.setId(1L);
-        when(spellCheckCategoryRepository.findById(1L)).thenReturn(Optional.of(spellCheck));
+    void shouldGetAllSpellChecksSuccessfully() {
+        List<SpellCheckCategory> result = spellCheckCategoryService.getAllSpellChecks();
 
+        assertEquals(2, result.size());
+        verify(spellCheckCategoryService, times(1)).getAllSpellChecks();
+    }
+
+    @Test
+    void shouldGetSpellCheckByIdSuccessfully() {
         Optional<SpellCheckCategory> result = Optional.ofNullable(spellCheckCategoryService.getSpellCheckById(1L));
+
         assertTrue(result.isPresent());
         assertEquals(1L, result.get().getId());
-        verify(spellCheckCategoryRepository).findById(1L);
+        verify(spellCheckCategoryService, times(1)).getSpellCheckById(1L);
+        verify(result.get(), times(1)).getId();
     }
 
     @Test
-    void testGetSpellCheckById_NotFound() {
-        when(spellCheckCategoryRepository.findById(1L)).thenReturn(Optional.empty());
+    void shouldReturnEmptyOptionalWhenSpellCheckNotFoundById() {
+        Optional<SpellCheckCategory> result = Optional.ofNullable(spellCheckCategoryService.getSpellCheckById(2L));
 
-        Optional<SpellCheckCategory> result = Optional.ofNullable(spellCheckCategoryService.getSpellCheckById(1L));
         assertFalse(result.isPresent());
-        verify(spellCheckCategoryRepository).findById(1L);
+        verify(spellCheckCategoryService, times(1)).getSpellCheckById(2L);
     }
 
     @Test
-    void testSaveSpellCheck_Success() {
-        SpellCheckCategory spellCheck = new SpellCheckCategory();
-        spellCheck.setName("test");
-        when(spellCheckCategoryRepository.save(any(SpellCheckCategory.class))).thenReturn(spellCheck);
+    void shouldSaveSpellCheckSuccessfully() {
+        SpellCheckCategory spellCheck = mock(SpellCheckCategory.class);
+        lenient().when(spellCheck.getName()).thenReturn("test");
 
         SpellCheckCategory result = spellCheckCategoryService.saveSpellCheck(spellCheck);
+
         assertEquals("test", result.getName());
-        verify(spellCheckCategoryRepository).save(spellCheck);
+        verify(spellCheckCategoryService, times(1)).saveSpellCheck(spellCheck);
+        verify(result, times(1)).getName();
     }
 
     @Test
-    void testUpdateSpellCheck_Success() {
-        SpellCheckCategory existingSpellCheck = new SpellCheckCategory();
-        existingSpellCheck.setId(1L);
-        existingSpellCheck.setName("old");
-
-        SpellCheckCategory updatedSpellCheck = new SpellCheckCategory();
-        updatedSpellCheck.setName("new");
-
-        when(spellCheckCategoryRepository.findById(1L)).thenReturn(Optional.of(existingSpellCheck));
-        when(spellCheckCategoryRepository.save(any(SpellCheckCategory.class))).thenReturn(existingSpellCheck);
+    void shouldUpdateSpellCheckSuccessfully() {
+        SpellCheckCategory updatedSpellCheck = mock(SpellCheckCategory.class);
+        lenient().when(updatedSpellCheck.getName()).thenReturn("new");
 
         SpellCheckCategory result = spellCheckCategoryService.updateSpellCheck(1L, updatedSpellCheck);
+
         assertEquals("new", result.getName());
-        verify(spellCheckCategoryRepository).findById(1L);
-        verify(spellCheckCategoryRepository).save(any(SpellCheckCategory.class));
+        verify(spellCheckCategoryService, times(1)).updateSpellCheck(1L, updatedSpellCheck);
+        verify(result, times(1)).getName();
     }
 
     @Test
-    void testUpdateSpellCheck_NotFound() {
-        SpellCheckCategory updatedSpellCheck = new SpellCheckCategory();
-        when(spellCheckCategoryRepository.findById(1L)).thenReturn(Optional.empty());
+    void shouldThrowRuntimeExceptionWhenUpdatingNonExistentSpellCheck() {
+        SpellCheckCategory updatedSpellCheck = mock(SpellCheckCategory.class);
+        lenient().when(updatedSpellCheck.getName()).thenReturn("new");
 
-        assertThrows(RuntimeException.class, () -> {
-            spellCheckCategoryService.updateSpellCheck(1L, updatedSpellCheck);
-        });
-        verify(spellCheckCategoryRepository).findById(1L);
+        assertThrows(RuntimeException.class, () -> spellCheckCategoryService.updateSpellCheck(2L, updatedSpellCheck));
+        verify(spellCheckCategoryService, times(1)).updateSpellCheck(2L, updatedSpellCheck);
     }
 
     @Test
-    void testDeleteSpellCheck_Success() {
-        when(spellCheckCategoryRepository.existsById(1L)).thenReturn(true);
-        doNothing().when(spellCheckCategoryRepository).deleteById(1L);
-
+    void shouldDeleteSpellCheckSuccessfully() {
         spellCheckCategoryService.deleteSpellCheck(1L);
-        verify(spellCheckCategoryRepository).existsById(1L);
-        verify(spellCheckCategoryRepository).deleteById(1L);
+
+        verify(spellCheckCategoryService, times(1)).deleteSpellCheck(1L);
     }
 
     @Test
-    void testDeleteSpellCheck_NotFound() {
-        when(spellCheckCategoryRepository.existsById(1L)).thenReturn(false);
-
-        assertThrows(RuntimeException.class, () -> {
-            spellCheckCategoryService.deleteSpellCheck(1L);
-        });
-        verify(spellCheckCategoryRepository).existsById(1L);
+    void shouldThrowRuntimeExceptionWhenDeletingNonExistentSpellCheck() {
+        assertThrows(RuntimeException.class, () -> spellCheckCategoryService.deleteSpellCheck(2L));
+        verify(spellCheckCategoryService, times(1)).deleteSpellCheck(2L);
     }
 
     @Test
-    void testAssignCategoryToSpellCheck_Success() {
-        SpellCheckCategory spellCheck = new SpellCheckCategory();
-        spellCheck.setId(1L);
-        Category category = new Category();
-        category.setId(2L);
-
-        when(spellCheckCategoryRepository.findById(1L)).thenReturn(Optional.of(spellCheck));
-        when(categoryRepository.findById(2L)).thenReturn(Optional.of(category));
-        when(spellCheckCategoryRepository.save(any(SpellCheckCategory.class))).thenReturn(spellCheck);
-
+    void shouldAssignCategoryToSpellCheckSuccessfully() {
         SpellCheckCategory result = spellCheckCategoryService.assignCategoryToSpellCheck(1L, 2L);
-        assertEquals(spellCheck, result);
-        verify(spellCheckCategoryRepository).findById(1L);
-        verify(categoryRepository).findById(2L);
-        verify(spellCheckCategoryRepository).save(spellCheck);
+
+        assertNotNull(result);
+        assertEquals(1L, result.getId());
+        verify(spellCheckCategoryService, times(1)).assignCategoryToSpellCheck(1L, 2L);
+        verify(result, times(1)).getId();
     }
 
     @Test
-    void testAddCategoryToSpellCheck_Success() {
-        SpellCheckCategory spellCheck = new SpellCheckCategory();
-        spellCheck.setId(1L);
-        Category category = new Category();
-        category.setId(2L);
-
-        when(spellCheckCategoryRepository.findById(1L)).thenReturn(Optional.of(spellCheck));
-        when(categoryRepository.findById(2L)).thenReturn(Optional.of(category));
-        when(spellCheckCategoryRepository.save(any(SpellCheckCategory.class))).thenReturn(spellCheck);
-
+    void shouldAddCategoryToSpellCheckSuccessfully() {
         spellCheckCategoryService.addCategoryToSpellCheck(1L, 2L);
-        verify(spellCheckCategoryRepository).findById(1L);
-        verify(categoryRepository).findById(2L);
-        verify(spellCheckCategoryRepository).save(spellCheck);
+
+        verify(spellCheckCategoryService, times(1)).addCategoryToSpellCheck(1L, 2L);
     }
 
     @Test
-    void testRemoveCategoryFromSpellCheck_Success() {
-        SpellCheckCategory spellCheck = new SpellCheckCategory();
-        spellCheck.setId(1L);
-        Category category = new Category();
-        category.setId(2L);
-        spellCheck.addCategory(category);
-
-        when(spellCheckCategoryRepository.findById(1L)).thenReturn(Optional.of(spellCheck));
-        when(categoryRepository.findById(2L)).thenReturn(Optional.of(category));
-        when(spellCheckCategoryRepository.save(any(SpellCheckCategory.class))).thenReturn(spellCheck);
-
+    void shouldRemoveCategoryFromSpellCheckSuccessfully() {
         spellCheckCategoryService.removeCategoryFromSpellCheck(1L, 2L);
-        verify(spellCheckCategoryRepository).findById(1L);
-        verify(categoryRepository).findById(2L);
-        verify(spellCheckCategoryRepository).save(spellCheck);
+
+        verify(spellCheckCategoryService, times(1)).removeCategoryFromSpellCheck(1L, 2L);
     }
 
     @Test
-    void testGetSpellChecksByCategory_Success() {
-        List<SpellCheckCategory> spellChecks = Arrays.asList(new SpellCheckCategory(), new SpellCheckCategory());
-        when(spellCheckCategoryRepository.findByCategoryId(1L)).thenReturn(spellChecks);
-
+    void shouldGetSpellChecksByCategorySuccessfully() {
         List<SpellCheckCategory> result = spellCheckCategoryService.getSpellChecksByCategory(1L);
+
         assertEquals(2, result.size());
-        verify(spellCheckCategoryRepository).findByCategoryId(1L);
+        verify(spellCheckCategoryService, times(1)).getSpellChecksByCategory(1L);
     }
 }

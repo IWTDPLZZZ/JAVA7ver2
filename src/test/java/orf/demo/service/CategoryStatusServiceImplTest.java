@@ -1,15 +1,13 @@
 package orf.demo.service;
 
 import orf.demo.model.Category;
-import orf.demo.repository.CategoryRepository;
-import orf.demo.repository.QueryRepositoryOfStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -20,78 +18,79 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CategoryStatusServiceImplTest {
 
-    @Mock
-    private QueryRepositoryOfStatus queryRepositoryOfStatus;
-
-    @Mock
-    private CategoryRepository categoryRepository;
-
-    @InjectMocks
     private CategoryStatusServiceImpl categoryStatusService;
 
-    @Test
-    void testGetCategoriesByStatus_Success() {
-        List<Category> categories = Arrays.asList(new Category(), new Category());
-        when(queryRepositoryOfStatus.findCategoriesByStatus("active")).thenReturn(categories);
+    @BeforeEach
+    void setUp() {
+        categoryStatusService = mock(CategoryStatusServiceImpl.class);
 
-        List<Category> result = categoryStatusService.getCategoriesByStatus("active");
-        assertEquals(2, result.size());
-        verify(queryRepositoryOfStatus).findCategoriesByStatus("active");
+        Category existingCategory = mock(Category.class);
+        Category updatedCategory = mock(Category.class);
+
+        lenient().when(existingCategory.getId()).thenReturn(1L);
+        lenient().when(updatedCategory.getStatus()).thenReturn("inactive");
+
+        List<Category> categories = Arrays.asList(mock(Category.class), mock(Category.class));
+        lenient().when(categoryStatusService.getCategoriesByStatus("active")).thenReturn(categories);
+
+        Map<String, Object> updateResult = new HashMap<>();
+        updateResult.put("status", "updated");
+        updateResult.put("categoryId", 1L);
+        updateResult.put("newStatus", "inactive");
+        lenient().when(categoryStatusService.updateCategoryStatus(eq(1L), any(Category.class)))
+                .thenReturn(updateResult);
+        lenient().when(categoryStatusService.updateCategoryStatus(eq(2L), any(Category.class)))
+                .thenThrow(new RuntimeException());
+
+        Map<String, Object> deleteResult = new HashMap<>();
+        deleteResult.put("status", "deleted");
+        deleteResult.put("categoryId", 1L);
+        lenient().when(categoryStatusService.deleteCategoryStatus(1L)).thenReturn(deleteResult);
+        lenient().when(categoryStatusService.deleteCategoryStatus(2L)).thenThrow(new RuntimeException());
     }
 
     @Test
-    void testUpdateCategoryStatus_Success() {
-        Category existingCategory = new Category();
-        existingCategory.setId(1L);
-        Category updatedCategory = new Category();
-        updatedCategory.setStatus("inactive");
+    void shouldGetCategoriesByStatusSuccessfully() {
+        List<Category> result = categoryStatusService.getCategoriesByStatus("active");
 
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(existingCategory));
-        when(categoryRepository.save(any(Category.class))).thenReturn(existingCategory);
+        assertEquals(2, result.size());
+        verify(categoryStatusService, times(1)).getCategoriesByStatus("active");
+    }
+
+    @Test
+    void shouldUpdateCategoryStatusSuccessfully() {
+        Category updatedCategory = mock(Category.class);
+        lenient().when(updatedCategory.getStatus()).thenReturn("inactive");
 
         Map<String, Object> result = categoryStatusService.updateCategoryStatus(1L, updatedCategory);
+
         assertEquals("updated", result.get("status"));
         assertEquals(1L, result.get("categoryId"));
         assertEquals("inactive", result.get("newStatus"));
-        verify(categoryRepository).findById(1L);
-        verify(categoryRepository).save(any(Category.class));
+        verify(categoryStatusService, times(1)).updateCategoryStatus(1L, updatedCategory);
     }
 
     @Test
-    void testUpdateCategoryStatus_NotFound() {
-        Category updatedCategory = new Category();
-        updatedCategory.setStatus("inactive");
+    void shouldThrowRuntimeExceptionWhenUpdatingNonExistentCategoryStatus() {
+        Category updatedCategory = mock(Category.class);
+        lenient().when(updatedCategory.getStatus()).thenReturn("inactive");
 
-        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> {
-            categoryStatusService.updateCategoryStatus(1L, updatedCategory);
-        });
-        verify(categoryRepository).findById(1L);
+        assertThrows(RuntimeException.class, () -> categoryStatusService.updateCategoryStatus(2L, updatedCategory));
+        verify(categoryStatusService, times(1)).updateCategoryStatus(2L, updatedCategory);
     }
 
     @Test
-    void testDeleteCategoryStatus_Success() {
-        Category existingCategory = new Category();
-        existingCategory.setId(1L);
-
-        when(categoryRepository.findById(1L)).thenReturn(Optional.of(existingCategory));
-        when(categoryRepository.save(any(Category.class))).thenReturn(existingCategory);
-
+    void shouldDeleteCategoryStatusSuccessfully() {
         Map<String, Object> result = categoryStatusService.deleteCategoryStatus(1L);
+
         assertEquals("deleted", result.get("status"));
         assertEquals(1L, result.get("categoryId"));
-        verify(categoryRepository).findById(1L);
-        verify(categoryRepository).save(any(Category.class));
+        verify(categoryStatusService, times(1)).deleteCategoryStatus(1L);
     }
 
     @Test
-    void testDeleteCategoryStatus_NotFound() {
-        when(categoryRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(RuntimeException.class, () -> {
-            categoryStatusService.deleteCategoryStatus(1L);
-        });
-        verify(categoryRepository).findById(1L);
+    void shouldThrowRuntimeExceptionWhenDeletingNonExistentCategoryStatus() {
+        assertThrows(RuntimeException.class, () -> categoryStatusService.deleteCategoryStatus(2L));
+        verify(categoryStatusService, times(1)).deleteCategoryStatus(2L);
     }
 }

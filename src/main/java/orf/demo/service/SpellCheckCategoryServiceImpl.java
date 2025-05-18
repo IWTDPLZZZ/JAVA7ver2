@@ -1,6 +1,8 @@
 package orf.demo.service;
 
 import orf.demo.cache.SpellCheckCache;
+import orf.demo.dto.BulkSpellCheckRequest;
+import orf.demo.dto.SpellCheckResponse;
 import orf.demo.model.Category;
 import orf.demo.model.SpellCheckCategory;
 import orf.demo.repository.CategoryRepository;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SpellCheckCategoryServiceImpl implements SpellCheckCategoryService {
@@ -18,14 +21,17 @@ public class SpellCheckCategoryServiceImpl implements SpellCheckCategoryService 
     private final SpellCheckCategoryRepository spellCheckCategoryRepository;
     private final CategoryRepository categoryRepository;
     private final SpellCheckCache spellCheckCache;
+    private final SpellCheckService spellCheckService;
 
     @Autowired
     public SpellCheckCategoryServiceImpl(SpellCheckCategoryRepository spellCheckCategoryRepository,
                                          CategoryRepository categoryRepository,
-                                         SpellCheckCache spellCheckCache) {
+                                         SpellCheckCache spellCheckCache,
+                                         SpellCheckService spellCheckService) {
         this.spellCheckCategoryRepository = spellCheckCategoryRepository;
         this.categoryRepository = categoryRepository;
         this.spellCheckCache = spellCheckCache;
+        this.spellCheckService = spellCheckService;
     }
 
     @Override
@@ -72,7 +78,6 @@ public class SpellCheckCategoryServiceImpl implements SpellCheckCategoryService 
                 .orElseThrow(() -> new RuntimeException("Spell check not found with ID: " + spellCheckId));
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new RuntimeException("Category not found with ID: " + categoryId));
-        // Инициализируем коллекцию categories перед использованием
         Hibernate.initialize(spellCheck.getCategories());
         spellCheck.addCategory(category);
         spellCheckCategoryRepository.save(spellCheck);
@@ -106,5 +111,23 @@ public class SpellCheckCategoryServiceImpl implements SpellCheckCategoryService 
         List<SpellCheckCategory> spellChecks = spellCheckCategoryRepository.findByErrorAndCategoryName(error, categoryName);
         spellChecks.forEach(spellCheck -> Hibernate.initialize(spellCheck.getCategories()));
         return spellChecks;
+    }
+
+    @Override
+    public void saveSpellCheckCategory(BulkSpellCheckRequest request) {
+        if (request == null || request.getTexts() == null) {
+            throw new IllegalArgumentException("Request or texts cannot be null");
+        }
+
+        SpellCheckCategory category = new SpellCheckCategory();
+        category.setName("SpellCheck_" + System.currentTimeMillis());
+        List<SpellCheckResponse> results = spellCheckService.checkSpellingBulk(request.getTexts());
+        String errors = results.stream()
+                .filter(response -> !response.isCorrect())
+                .map(response -> response.getText())
+                .collect(Collectors.joining(", "));
+        category.setError(errors.isEmpty() ? null : errors);
+        category.setStatus(errors.isEmpty() ? "Correct" : "Error");
+        spellCheckCategoryRepository.save(category);
     }
 }

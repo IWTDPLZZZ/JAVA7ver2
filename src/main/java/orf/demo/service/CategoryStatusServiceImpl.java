@@ -54,4 +54,11 @@ public class CategoryStatusServiceImpl implements CategoryStatusService {
         response.put("categoryId", id);
         return response;
     }
+
+    @Override
+    public String getStatusByCategory(String categoryName) {
+        return categoryRepository.findByName(categoryName)
+                .map(category -> category.getStatus() != null ? category.getStatus() : "Active")
+                .orElse("Inactive");
+    }
 }

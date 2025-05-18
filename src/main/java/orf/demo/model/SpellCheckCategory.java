@@ -76,4 +76,6 @@ public class SpellCheckCategory {
         categories.remove(category);
         category.getSpellChecks().remove(this);
     }
+
+
 }

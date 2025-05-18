@@ -19,7 +19,6 @@ public class Category {
     @ManyToMany(mappedBy = "categories")
     private List<SpellCheckCategory> spellChecks = new ArrayList<>();
 
-    // Геттеры и сеттеры
     public Long getId() {
         return id;
     }

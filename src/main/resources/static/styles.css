@@ -9,12 +9,12 @@ body {
 }
 
 .light-theme {
-    background: linear-gradient(135deg, #ff00ff 0%, #ff99ff 100%); /* Ярко-розовый градиент */
+    background: linear-gradient(135deg, #ff00ff 0%, #ff99ff 100%);
     color: #000000;
 }
 
 .dark-theme {
-    background: linear-gradient(135deg, #000099 0%, #3333ff 100%); /* Ярко-синий градиент */
+    background: linear-gradient(135deg, #000099 0%, #3333ff 100%);
     color: #ffffff;
 }
 
@@ -26,12 +26,12 @@ body {
     border-radius: 25px;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
     transition: background 0.3s;
-    border: 5px solid #ff00ff; /* Яркая розовая граница */
+    border: 5px solid #ff00ff;
 }
 
 .dark-theme .container {
     background: rgba(0, 0, 51, 0.9);
-    border-color: #00ffff; /* Яркая голубая граница */
+    border-color: #00ffff;
     box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
 }
 
@@ -49,7 +49,7 @@ header {
 }
 
 h1 {
-    font-size: 4rem; /* Ещё крупнее */
+    font-size: 4rem;
     font-weight: 800;
     text-align: center;
     text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
@@ -58,11 +58,11 @@ h1 {
 }
 
 .light-theme h1 {
-    color: #ff0000; /* Ярко-красный */
+    color: #ff0000;
 }
 
 .dark-theme h1 {
-    color: #00ff00; /* Ярко-зелёный */
+    color: #00ff00;
 }
 
 h2 {
@@ -156,7 +156,7 @@ button:hover {
 }
 
 button[type="submit"] {
-    background-color: #ff0000; /* Ярко-красный */
+    background-color: #ff0000;
     color: white;
 }
 
@@ -190,7 +190,7 @@ button.theme-toggle:hover {
 }
 
 button.edit {
-    background-color: #ffff00; /* Ярко-жёлтый */
+    background-color: #ffff00;
     color: #000000;
     padding: 12px 18px;
     margin-right: 12px;

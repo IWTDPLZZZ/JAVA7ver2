@@ -1,4 +1,5 @@
-package orf.demo.dto;
+
+        package orf.demo.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,4 +10,11 @@ import java.util.List;
 @Setter
 public class BulkSpellCheckRequest {
     private List<String> texts;
+
+    public BulkSpellCheckRequest() {
+    }
+
+    public BulkSpellCheckRequest(List<String> texts) {
+        this.texts = texts;
+    }
 }

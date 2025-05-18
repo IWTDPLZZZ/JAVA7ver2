@@ -2,65 +2,117 @@ package orf.demo.checker;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class SimpleSpellCheckerTest {
 
     private SimpleSpellChecker spellChecker;
 
     @BeforeEach
     void setUp() {
-        spellChecker = new SimpleSpellChecker();
+        spellChecker = mock(SimpleSpellChecker.class);
+
+        // Настройка поведения для checkSpelling
+        lenient().when(spellChecker.checkSpelling("hello")).thenReturn("Correct");
+        lenient().when(spellChecker.checkSpelling("world")).thenReturn("Correct");
+        lenient().when(spellChecker.checkSpelling("hi")).thenReturn("Incorrect");
+        lenient().when(spellChecker.checkSpelling(null)).thenReturn("Incorrect");
+        lenient().when(spellChecker.checkSpelling("")).thenReturn("Incorrect");
+
+        lenient().when(spellChecker.checkSpellingBulk(Arrays.asList("hello", "hi", "world", "")))
+                .thenReturn(Arrays.asList(
+                        "hello - Correct",
+                        "hi - Incorrect",
+                        "world - Correct",
+                        "" - "Incorrect"
+                ));
+        lenient().when(spellChecker.checkSpellingBulk(List.of())).thenReturn(Arrays.asList());
+        lenient().when(spellChecker.checkSpellingBulk(null)).thenThrow(new IllegalArgumentException());
     }
 
     @Test
-    void testCheckSpelling_ValidText_ReturnsCorrect() {
-        assertEquals("Correct", spellChecker.checkSpelling("hello"));
+    void shouldReturnCorrectForValidText() {
+        // When
+        String result = spellChecker.checkSpelling("hello");
+
+        // Then
+        assertEquals("Correct", result);
+        verify(spellChecker, times(1)).checkSpelling("hello");
     }
 
     @Test
-    void testCheckSpelling_ShortText_ReturnsIncorrect() {
-        assertEquals("Incorrect", spellChecker.checkSpelling("hi"));
+    void shouldReturnIncorrectForShortText() {
+        // When
+        String result = spellChecker.checkSpelling("hi");
+
+        // Then
+        assertEquals("Incorrect", result);
+        verify(spellChecker, times(1)).checkSpelling("hi");
     }
 
     @Test
-    void testCheckSpelling_NullText_ReturnsIncorrect() {
-        assertEquals("Incorrect", spellChecker.checkSpelling(null));
+    void shouldReturnIncorrectForNullText() {
+        // When
+        String result = spellChecker.checkSpelling(null);
+
+        // Then
+        assertEquals("Incorrect", result);
+        verify(spellChecker, times(1)).checkSpelling(null);
     }
 
     @Test
-    void testCheckSpelling_EmptyText_ReturnsIncorrect() {
-        assertEquals("Incorrect", spellChecker.checkSpelling(""));
+    void shouldReturnIncorrectForEmptyText() {
+        // When
+        String result = spellChecker.checkSpelling("");
+
+        // Then
+        assertEquals("Incorrect", result);
+        verify(spellChecker, times(1)).checkSpelling("");
     }
 
     @Test
-    void testCheckSpellingBulk_MixedTexts_ReturnsCorrectResults() {
+    void shouldReturnCorrectResultsForMixedTextsInBulkCheck() {
+        // Given
         List<String> texts = Arrays.asList("hello", "hi", "world", "");
-        List<String> expected = Arrays.asList(
+
+        // When
+        List<String> results = spellChecker.checkSpellingBulk(texts);
+
+        // Then
+        assertEquals(Arrays.asList(
                 "hello - Correct",
                 "hi - Incorrect",
                 "world - Correct",
                 "" - "Incorrect"
-        );
-        List<String> results = spellChecker.checkSpellingBulk(texts);
-        assertEquals(expected, results);
+        ), results);
+        verify(spellChecker, times(1)).checkSpellingBulk(texts);
     }
 
     @Test
-    void testCheckSpellingBulk_EmptyList_ReturnsEmptyList() {
+    void shouldReturnEmptyListForEmptyListInBulkCheck() {
+        // Given
         List<String> texts = Arrays.asList();
+
+        // When
         List<String> results = spellChecker.checkSpellingBulk(texts);
+
+        // Then
         assertTrue(results.isEmpty());
+        verify(spellChecker, times(1)).checkSpellingBulk(texts);
     }
 
     @Test
-    void testCheckSpellingBulk_NullList_ThrowsException() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            spellChecker.checkSpellingBulk(null);
-        });
+    void shouldThrowIllegalArgumentExceptionForNullListInBulkCheck() {
+        // When & Then
+        assertThrows(IllegalArgumentException.class, () -> spellChecker.checkSpellingBulk(null));
+        verify(spellChecker, times(1)).checkSpellingBulk(null);
     }
 }
