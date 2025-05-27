@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SpellCheckServiceImplTest {
+class InterfaceSpellCheckServiceImplTest {
 
-    private SpellCheckServiceImpl spellCheckService;
+    private InterfaceSpellCheckServiceImpl spellCheckService;
 
     @BeforeEach
     void setUp() {
-        spellCheckService = mock(SpellCheckServiceImpl.class);
+        spellCheckService = mock(InterfaceSpellCheckServiceImpl.class);
 
         lenient().when(spellCheckService.checkSpelling("hello")).thenReturn("Correct");
         lenient().when(spellCheckService.checkSpelling("hi")).thenReturn("Incorrect");

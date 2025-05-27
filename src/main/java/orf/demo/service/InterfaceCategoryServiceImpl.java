@@ -2,6 +2,7 @@ package orf.demo.service;
 
 import orf.demo.model.Category;
 import orf.demo.repository.CategoryRepository;
+import orf.demo.service.Interface.InterfaceCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -9,12 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class CategoryServiceImpl implements CategoryService {
+public class InterfaceCategoryServiceImpl implements InterfaceCategoryService {
 
     private final CategoryRepository categoryRepository;
 
     @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository) {
+    public InterfaceCategoryServiceImpl(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 

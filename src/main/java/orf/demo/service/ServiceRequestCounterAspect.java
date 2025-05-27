@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class ServiceRequestCounterAspect {
     private final AtomicLong counter = new AtomicLong(0);
 
-    @Around("execution(* orf.demo.service.SpellCheckCategoryService.*(..))")
+    @Around("execution(* orf.demo.service.Interface.InterfaceSpellCheckCategoryService.*(..))")
     public Object countRequests(ProceedingJoinPoint joinPoint) throws Throwable {
         counter.incrementAndGet();
         return joinPoint.proceed();

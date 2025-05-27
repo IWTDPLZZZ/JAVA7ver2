@@ -1,11 +1,11 @@
-package orf.demo.service;
+package orf.demo.service.Interface;
 
 import orf.demo.model.Category;
 
 import java.util.List;
 import java.util.Map;
 
-public interface CategoryStatusService {
+public interface InterfaceCategoryStatusService {
     List<Category> getCategoriesByStatus(String status);
     Map<String, Object> updateCategoryStatus(Long id, Category updatedCategory);
     Map<String, Object> deleteCategoryStatus(Long id);

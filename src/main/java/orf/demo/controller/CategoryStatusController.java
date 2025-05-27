@@ -1,8 +1,8 @@
 package orf.demo.controller;
 
 import orf.demo.model.SpellCheckCategory;
-import orf.demo.service.CategoryStatusService;
-import orf.demo.service.SpellCheckCategoryService;
+import orf.demo.service.Interface.InterfaceCategoryStatusService;
+import orf.demo.service.Interface.InterfaceSpellCheckCategoryService;
 import orf.demo.model.Category;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,28 +15,28 @@ import java.util.Map;
 @RequestMapping("/categories")
 public class CategoryStatusController {
 
-    private final CategoryStatusService categoryStatusService;
-    private final SpellCheckCategoryService spellCheckCategoryService;
+    private final InterfaceCategoryStatusService interfaceCategoryStatusService;
+    private final InterfaceSpellCheckCategoryService interfaceSpellCheckCategoryService;
 
     @Autowired
-    public CategoryStatusController(CategoryStatusService categoryStatusService,
-                                    SpellCheckCategoryService spellCheckCategoryService) {
-        this.categoryStatusService = categoryStatusService;
-        this.spellCheckCategoryService = spellCheckCategoryService;
+    public CategoryStatusController(InterfaceCategoryStatusService interfaceCategoryStatusService,
+                                    InterfaceSpellCheckCategoryService interfaceSpellCheckCategoryService) {
+        this.interfaceCategoryStatusService = interfaceCategoryStatusService;
+        this.interfaceSpellCheckCategoryService = interfaceSpellCheckCategoryService;
     }
 
     @GetMapping("/{categoryId}/spell-checks")
     public ResponseEntity<List<SpellCheckCategory>> getSpellChecksByCategoryId(@PathVariable Long categoryId) {
-        return ResponseEntity.ok(spellCheckCategoryService.getSpellChecksByCategory(String.valueOf(categoryId)));
+        return ResponseEntity.ok(interfaceSpellCheckCategoryService.getSpellChecksByCategory(String.valueOf(categoryId)));
     }
 
     @PutMapping("/{id}/status")
     public ResponseEntity<Map<String, Object>> updateCategoryStatus(@PathVariable Long id, @RequestBody Category updatedCategory) {
-        return ResponseEntity.ok(categoryStatusService.updateCategoryStatus(id, updatedCategory));
+        return ResponseEntity.ok(interfaceCategoryStatusService.updateCategoryStatus(id, updatedCategory));
     }
 
     @DeleteMapping("/{id}/status")
     public ResponseEntity<Map<String, Object>> deleteCategoryStatus(@PathVariable Long id) {
-        return ResponseEntity.ok(categoryStatusService.deleteCategoryStatus(id));
+        return ResponseEntity.ok(interfaceCategoryStatusService.deleteCategoryStatus(id));
     }
 }

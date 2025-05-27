@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CategoryServiceImplTest {
+class InterfaceCategoryServiceImplTest {
 
-    private CategoryServiceImpl categoryService;
+    private InterfaceCategoryServiceImpl categoryService;
 
     @BeforeEach
     void setUp() {
-        categoryService = mock(CategoryServiceImpl.class);
+        categoryService = mock(InterfaceCategoryServiceImpl.class);
 
         Category savedCategory = mock(Category.class);
         Category existingCategory = mock(Category.class);

@@ -1,4 +1,4 @@
-package orf.demo.config;
+package orf.demo.aspect;
 
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -11,8 +11,8 @@ import org.springframework.stereotype.Component;
 
 @Aspect
 @Component
-public class LoggingAspect {
-    private static final Logger logger = LoggerFactory.getLogger(LoggingAspect.class);
+public class MyLoggingAspect {
+    private static final Logger logger = LoggerFactory.getLogger(MyLoggingAspect.class);
 
     @Before("execution(* orf.demo.service.*.*(..))")
     public void logBeforeServiceMethods(JoinPoint joinPoint) {

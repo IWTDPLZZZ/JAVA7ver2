@@ -1,11 +1,11 @@
-package orf.demo.service;
+package orf.demo.service.Interface;
 
 import orf.demo.dto.BulkSpellCheckRequest;
 import orf.demo.model.SpellCheckCategory;
 
 import java.util.List;
 
-public interface SpellCheckCategoryService {
+public interface InterfaceSpellCheckCategoryService {
     List<SpellCheckCategory> getAllSpellChecks();
     SpellCheckCategory getSpellCheckById(Long id);
     SpellCheckCategory saveSpellCheck(SpellCheckCategory spellCheck);

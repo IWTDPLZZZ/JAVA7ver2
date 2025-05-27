@@ -3,6 +3,7 @@ package orf.demo.service;
 import orf.demo.model.Category;
 import orf.demo.repository.CategoryRepository;
 import orf.demo.repository.QueryRepositoryOfStatus;
+import orf.demo.service.Interface.InterfaceCategoryStatusService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,14 +12,14 @@ import java.util.List;
 import java.util.Map;
 
 @Service
-public class CategoryStatusServiceImpl implements CategoryStatusService {
+public class InterfaceCategoryStatusServiceImpl implements InterfaceCategoryStatusService {
 
     private final QueryRepositoryOfStatus queryRepositoryOfStatus;
     private final CategoryRepository categoryRepository;
 
     @Autowired
-    public CategoryStatusServiceImpl(QueryRepositoryOfStatus queryRepositoryOfStatus,
-                                     CategoryRepository categoryRepository) {
+    public InterfaceCategoryStatusServiceImpl(QueryRepositoryOfStatus queryRepositoryOfStatus,
+                                              CategoryRepository categoryRepository) {
         this.queryRepositoryOfStatus = queryRepositoryOfStatus;
         this.categoryRepository = categoryRepository;
     }

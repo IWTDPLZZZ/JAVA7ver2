@@ -15,13 +15,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class SpellCheckCategoryServiceImplTest {
+class SpellCheckInterfaceCategoryServiceImplTest {
 
-    private SpellCheckCategoryServiceImpl spellCheckCategoryService;
+    private InterfaceSpellCheckCategoryServiceImpl spellCheckCategoryService;
 
     @BeforeEach
     void setUp() {
-        spellCheckCategoryService = mock(SpellCheckCategoryServiceImpl.class);
+        spellCheckCategoryService = mock(InterfaceSpellCheckCategoryServiceImpl.class);
 
         SpellCheckCategory spellCheck = mock(SpellCheckCategory.class);
         SpellCheckCategory savedSpellCheck = mock(SpellCheckCategory.class);

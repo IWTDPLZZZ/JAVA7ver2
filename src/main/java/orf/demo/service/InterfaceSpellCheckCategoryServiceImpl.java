@@ -7,6 +7,8 @@ import orf.demo.model.Category;
 import orf.demo.model.SpellCheckCategory;
 import orf.demo.repository.CategoryRepository;
 import orf.demo.repository.SpellCheckCategoryRepository;
+import orf.demo.service.Interface.InterfaceSpellCheckCategoryService;
+import orf.demo.service.Interface.InterfaceSpellCheckService;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,22 +18,22 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class SpellCheckCategoryServiceImpl implements SpellCheckCategoryService {
+public class InterfaceSpellCheckCategoryServiceImpl implements InterfaceSpellCheckCategoryService {
 
     private final SpellCheckCategoryRepository spellCheckCategoryRepository;
     private final CategoryRepository categoryRepository;
     private final SpellCheckCache spellCheckCache;
-    private final SpellCheckService spellCheckService;
+    private final InterfaceSpellCheckService interfaceSpellCheckService;
 
     @Autowired
-    public SpellCheckCategoryServiceImpl(SpellCheckCategoryRepository spellCheckCategoryRepository,
-                                         CategoryRepository categoryRepository,
-                                         SpellCheckCache spellCheckCache,
-                                         SpellCheckService spellCheckService) {
+    public InterfaceSpellCheckCategoryServiceImpl(SpellCheckCategoryRepository spellCheckCategoryRepository,
+                                                  CategoryRepository categoryRepository,
+                                                  SpellCheckCache spellCheckCache,
+                                                  InterfaceSpellCheckService interfaceSpellCheckService) {
         this.spellCheckCategoryRepository = spellCheckCategoryRepository;
         this.categoryRepository = categoryRepository;
         this.spellCheckCache = spellCheckCache;
-        this.spellCheckService = spellCheckService;
+        this.interfaceSpellCheckService = interfaceSpellCheckService;
     }
 
     @Override
@@ -121,7 +123,7 @@ public class SpellCheckCategoryServiceImpl implements SpellCheckCategoryService 
 
         SpellCheckCategory category = new SpellCheckCategory();
         category.setName("SpellCheck_" + System.currentTimeMillis());
-        List<SpellCheckResponse> results = spellCheckService.checkSpellingBulk(request.getTexts());
+        List<SpellCheckResponse> results = interfaceSpellCheckService.checkSpellingBulk(request.getTexts());
         String errors = results.stream()
                 .filter(response -> !response.isCorrect())
                 .map(response -> response.getText())

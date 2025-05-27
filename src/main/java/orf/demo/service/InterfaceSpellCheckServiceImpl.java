@@ -2,6 +2,7 @@ package orf.demo.service;
 
 import orf.demo.checker.SpellChecker;
 import orf.demo.dto.SpellCheckResponse;
+import orf.demo.service.Interface.InterfaceSpellCheckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -11,14 +12,14 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
-public class SpellCheckServiceImpl implements SpellCheckService {
+public class InterfaceSpellCheckServiceImpl implements InterfaceSpellCheckService {
 
     private final SpellChecker spellChecker;
     private final RequestCounter requestCounter;
 
     @Autowired
-    public SpellCheckServiceImpl(@Qualifier("simpleSpellChecker") SpellChecker spellChecker,
-                                 RequestCounter requestCounter) {
+    public InterfaceSpellCheckServiceImpl(@Qualifier("simpleSpellChecker") SpellChecker spellChecker,
+                                          RequestCounter requestCounter) {
         this.spellChecker = spellChecker;
         this.requestCounter = requestCounter;
     }

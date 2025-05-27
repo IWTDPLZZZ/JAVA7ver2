@@ -1,41 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Spell Check Dashboard</title>
-    <link
-            href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-            rel="stylesheet"
-    />
-    <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-            rel="stylesheet"
-    />
-    <link
-            href="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.css"
-            rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Spell Check Dashboard</title>
+	<link rel="stylesheet" href="/styles.css" />
+
+
 </head>
-<body class="light-theme">
-<div id="root"></div>
-<script
-        src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"
-        onerror="console.error('Failed to load React')"
-></script>
-<script
-        src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"
-        onerror="console.error('Failed to load ReactDOM')"
-></script>
-<script
-        src="https://cdnjs.cloudflare.com/ajax/libs/toastify-js/1.12.0/toastify.min.js"
-        onerror="console.error('Failed to load Toastify')"
-></script>
-<script
-        src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.18.9/babel.min.js"
-        onerror="console.error('Failed to load Babel')"
-></script>
-<script type="text/babel" src="script.js"></script>
+<body onload="loadHistory()">
+	<div class="form-container">
+		<label for="userInput">Enter a phrase you need to SPELLCHECK:</label>
+		<div class = "hor_container">
+			<input type="text" id="userInput" name="userInput" onkeydown="if(event.key === 'Enter'){checkInput()}">
+			<button type="button" onclick="checkInput()">Check</button>
+		</div>
+        <form>
+		</form>
+    </div>
+	
+	<details open>
+		<summary id="history-summary">Click to expand/collapse spell checks history</summary>
+		<div id="history-container">
+		</div>
+		
+	</details>
+	<script src="/script.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 </body>
 </html>

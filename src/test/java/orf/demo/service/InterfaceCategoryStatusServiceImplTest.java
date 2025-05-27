@@ -10,19 +10,18 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CategoryStatusServiceImplTest {
+class InterfaceCategoryStatusServiceImplTest {
 
-    private CategoryStatusServiceImpl categoryStatusService;
+    private InterfaceCategoryStatusServiceImpl categoryStatusService;
 
     @BeforeEach
     void setUp() {
-        categoryStatusService = mock(CategoryStatusServiceImpl.class);
+        categoryStatusService = mock(InterfaceCategoryStatusServiceImpl.class);
 
         Category existingCategory = mock(Category.class);
         Category updatedCategory = mock(Category.class);
