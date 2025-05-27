@@ -1,4 +1,4 @@
-![photo_2025-05-27_09-35-25](https://github.com/user-attachments/assets/67dc1b5b-9f24-480c-8e15-c676c3959269)
+
 Лаборатореая работа №7, уч/группа 334701
  
  	
